@@ -13,7 +13,9 @@ class ApiClient {
       String? tuNgay,
       String? denNgay,
       int? duongId,
-      int? phuongXaId}) async {
+      int? phuongXaId,
+      int? LoaiPhanAnhId
+      }) async {
     try {
       String url =
           '$baseUrl/phananhs?DonViId=0&DeviceId=abcdef&NguoiGuiId=123456789&pageIndex=$pageIndex&pageSize=$pageSize';
@@ -28,6 +30,9 @@ class ApiClient {
       }
       if (phuongXaId != null) {
         url += '&phuongXaId=$phuongXaId';
+      }
+      if(LoaiPhanAnhId != null) {
+        url += '&LoaiPhanAnhId=$LoaiPhanAnhId';
       }
       if (LoaiViPhamIds != null && LoaiViPhamIds.isNotEmpty) {
         String urlLVP = '';

@@ -4,6 +4,7 @@ import '../../services/services.dart';
 import '../modules.dart';
 
 class PhanAnhProvider extends ChangeNotifier{
+  int _currentIndex = 0;
   List<PhanAnh> _itemList = [];
   List<LoaiPhanAnh> _itemListLPA = [];
   int pageIndex = 1;
@@ -15,9 +16,20 @@ class PhanAnhProvider extends ChangeNotifier{
   bool get isFirstLoadRunning => _isFirstLoadRunning;
   bool get isFilterLoadRunning => _isFilterLoadRunning;
   bool get isLoadMoreRunning => _isLoadMoreRunning;
+  int get currentIndex => _currentIndex;
 
   List<PhanAnh> get itemList => _itemList;
   List<LoaiPhanAnh>  get itemListLPA => _itemListLPA;
+
+  void updateCurrent(int index){
+    _currentIndex = index;
+    notifyListeners();
+  }
+
+  void updateIsFilterLoadingRunngin(bool value){
+    _isFilterLoadRunning = value;
+    notifyListeners();
+  }
 
   void loadMore() async {
     if ((isFirstLoadRunning == false || isFilterLoadRunning == false) && _isLoadMoreRunning == false) {
@@ -37,8 +49,7 @@ class PhanAnhProvider extends ChangeNotifier{
 
   Future<void> firstLoad() async {
     _isFirstLoadRunning = true;
-    final items =
-    await ApiClient().getDataPA(pageSize: pageSize, pageIndex: pageIndex);
+    final items = await ApiClient().getDataPA(pageSize: pageSize, pageIndex: pageIndex);
     _itemList = items;
     _isFirstLoadRunning = false;
     notifyListeners();
@@ -69,13 +80,17 @@ class PhanAnhProvider extends ChangeNotifier{
       ..moTa = null
       ..maLoaiPhanAnh = null
       ..maPhanLoai = null;
-    _isFirstLoadRunning = false;
     _itemListLPA.insert(0, loaiPhanAnh);
     notifyListeners();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
+  Future<void> getFilter(int idLPA,{bool filter = false}) async {
+    _isFilterLoadRunning = true;
+    if(idLPA != 0){
+      var items = await ApiClient().getDataPA(pageIndex: pageIndex, pageSize: pageSize,LoaiPhanAnhId: idLPA);
+      _itemList = items;
+    }
+    _isFirstLoadRunning = false;
+    notifyListeners();
   }
 }
