@@ -14,8 +14,8 @@ class _PhanAnhPageState extends State<PhanAnhPage> {
   @override
   void initState() {
     super.initState();
-    provider.firstLoad();
-    provider.getLoaiPAList();
+    provider.getData();
+    provider.getDataLPA();
   }
 
   @override
@@ -44,83 +44,87 @@ class _PhanAnhPageState extends State<PhanAnhPage> {
             ),
           ],
         ),
-        body: Consumer<PhanAnhProvider>(
-          builder: (context, value, child) {
-            final list = provider.itemListLPA;
-            final current = provider.currentIndex;
-            return provider.isFirstLoadRunning || provider.isFilterLoadRunning == true
-                ? const Center(
-                    child: CircularProgressIndicator(
-                      color: Colors.blue,
-                    ),
-                  )
-                : Container(
-                    margin: const EdgeInsets.all(5),
-                    color: Colors.white54,
-                    child: Column(
-                      children: [
-                        SizedBox(
-                            height: 60,
-                            child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: list.length,
-                                scrollDirection: Axis.horizontal,
-                                itemBuilder: (context, index) {
-                                  return Column(
-                                    children: [
-                                      GestureDetector(
-                                        onTap: () {
-                                          provider.updateCurrent(index);
-                                          provider.getFilter(list[index].loaiPhanAnhId ?? 0);
-                                          provider.updateIsFilterLoadingRunngin(false);
-                                        },
-                                        child: AnimatedContainer(
-                                          duration:
-                                              const Duration(milliseconds: 100),
-                                          margin: const EdgeInsets.all(5),
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 5, vertical: 10),
-                                          decoration: BoxDecoration(
-                                            color: current == index
-                                                ? Colors.white70
-                                                : Colors.white54,
-                                            borderRadius: current == index
-                                                ? BorderRadius.circular(10)
-                                                : null,
-                                            border: current == index
-                                                ? Border.all(
-                                                    color: Colors.black,
-                                                    width: 1)
-                                                : null,
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              list[index].tenLoaiPhanAnh ?? '',
-                                              maxLines: 1,
-                                            ),
-                                          ),
+        body: Center(
+          child: Consumer<PhanAnhProvider>(
+            builder: (context, value, child) {
+              final list = provider.itemListLPA;
+              final current = provider.currentIndex;
+              if (provider.itemListLPA.isEmpty) {
+                return const Center(child: CircularProgressIndicator());
+              } else {
+                return Column(
+                  children: [
+                    SizedBox(
+                        height: 60,
+                        child: ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: list.length,
+                            scrollDirection: Axis.horizontal,
+                            itemBuilder: (context, index) {
+                              return Column(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      provider.updateCurrent(index);
+                                      provider.getFilter(index);
+                                    },
+                                    child: AnimatedContainer(
+                                      duration:
+                                          const Duration(milliseconds: 100),
+                                      margin: const EdgeInsets.all(5),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 5, vertical: 10),
+                                      decoration: BoxDecoration(
+                                        color: current == index
+                                            ? Colors.white70
+                                            : Colors.white54,
+                                        borderRadius: current == index
+                                            ? BorderRadius.circular(10)
+                                            : null,
+                                        border: current == index
+                                            ? Border.all(
+                                                color: Colors.black, width: 1)
+                                            : null,
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          list[index].tenLoaiPhanAnh ?? '',
+                                          maxLines: 1,
                                         ),
                                       ),
-                                    ],
-                                  );
-                                })),
-                        /// MAIN BODY
-                        Expanded(
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: provider.itemList.length,
-                            itemBuilder: (context, index) {
-                              return itemPhanAnh(
-                                  context: context,
-                                  index: index,
-                                  provider: provider);
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-          },
+                                    ),
+                                  ),
+                                ],
+                              );
+                            })),
+                    Expanded(
+                      child: FutureBuilder(
+                        future: provider.getFilter(provider.currentIndex),
+                        builder: (context,data) {
+                          if(data.connectionState == ConnectionState.waiting){
+                            return const Center(
+                            child: CircularProgressIndicator(),
+                            );
+                          }else{
+                             return ListView.builder(
+                               shrinkWrap: true,
+                               itemCount: provider.itemList.length,
+                               itemBuilder: (context, index) {
+                                 return itemPhanAnh(
+                                     context: context,
+                                     index: index,
+                                     provider: provider);
+                               },
+                             );
+                          }
+                        },
+                      ),
+                    )
+                  ],
+                );
+              }
+            },
+          ),
         ),
       ),
     );
@@ -131,16 +135,10 @@ class _PhanAnhPageState extends State<PhanAnhPage> {
       required int index,
       required PhanAnhProvider provider}) {
     final item = provider.itemList[index];
-    final listTepDinhKem = List.generate(item.tepDinhKems!.length, (index) {
-      return Row(
-        children: [
-        ],
-      );
-    });
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5),
+      color: Colors.grey,
       child: Card(
-        color: Colors.red,
+        elevation: 2,
         child: Padding(
           padding: const EdgeInsets.all(10),
           child: Column(
@@ -151,50 +149,34 @@ class _PhanAnhPageState extends State<PhanAnhPage> {
                 height: 100,
                 alignment: Alignment.center,
                 child: const Icon(
-                  Icons.error,color: Colors.white,
+                  Icons.error,
+                  color: Colors.white,
                 ),
               ),
               Row(
                 children: [
                   const Text('Ngày phản ánh:'),
-                  Text(item.ngayPhanAnh!)
+                  Text(item.ngayPhanAnh ?? '')
                 ],
               ),
               Row(
-                children: [
-                  const Text('Địa chỉ:'),
-                  Text(item.diaChi!)
-                ],
-              ),
-              Row(
-                children: [
-                  const Text('Hành vi vi phạm:'),
-                  Text(item.loaiViPham!.tenLoaiViPham!)
-                ],
+                children: [const Text('Địa chỉ:'), Text(item.diaChi ?? '')],
               ),
               const Align(
-                alignment: Alignment.topLeft,
-                  child: Text('Nội dung phản ánh')),
+                  alignment: Alignment.topLeft,
+                  child: Text('Hành vi vi phạm:')),
               Align(
                   alignment: Alignment.topLeft,
-                  child: Text(item.noiDung!)),
-              Container(
-                child: Column(
-                  children: [
-                    Container(
-                      alignment: Alignment.topLeft,
-                      color: Colors.blue,
-                      padding: const EdgeInsets.symmetric(horizontal: 5,vertical: 10),
-                      child: const Text(
-                        'NỘI DUNG XỬ LÝ'
-                      ),
-                    ),
-                    Column(
-                      children: listTepDinhKem,
-                    )
-                  ],
-                ),
-              )
+                  child: Text(
+                    item.loaiViPham!.tenLoaiViPham ?? '',
+                    maxLines: 2,
+                  )),
+              const Align(
+                  alignment: Alignment.topLeft,
+                  child: Text('Nội dung phản ánh:')),
+              Align(
+                  alignment: Alignment.topLeft,
+                  child: Text(item.noiDung ?? '')),
             ],
           ),
         ),
