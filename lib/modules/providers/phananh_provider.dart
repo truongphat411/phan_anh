@@ -19,6 +19,8 @@ class PhanAnhProvider extends ChangeNotifier{
   List<PhanAnh> get itemList => _itemList;
   List<LoaiPhanAnh>  get itemListLPA => _itemListLPA;
 
+  bool get isEmpty => _itemList.isEmpty;
+
   void updateCurrent(int index){
     _currentIndex = index;
     notifyListeners();
@@ -78,14 +80,15 @@ class PhanAnhProvider extends ChangeNotifier{
     _isFilterLoadRunning = false;
     notifyListeners();
   }
+  
 
-
-  Future<List<PhanAnh>> getFilter(int idLPA) async {
-    if(idLPA == 0){
-      return _itemList;
+  Future<void> getFilter(int idLPA) async {
+    _isFilterLoadRunning = true;
+    if(idLPA != 0){
+      var items = await ApiClient().getDataPA(pageIndex: pageIndex, pageSize: pageSize,LoaiPhanAnhId: idLPA);
+      _itemList = items;
     }
-    var items = await ApiClient().getDataPA(pageIndex: pageIndex, pageSize: pageSize,LoaiPhanAnhId: idLPA);
-    _itemList = items;
-    return _itemList;
+    _isFilterLoadRunning = false;
+    notifyListeners();
   }
 }

@@ -97,29 +97,45 @@ class _PhanAnhPageState extends State<PhanAnhPage> {
                                 ],
                               );
                             })),
-                    Expanded(
-                      child: FutureBuilder(
-                        future: provider.getFilter(provider.currentIndex),
-                        builder: (context,data) {
-                          if(data.connectionState == ConnectionState.waiting){
-                            return const Center(
-                            child: CircularProgressIndicator(),
-                            );
-                          }else{
-                             return ListView.builder(
-                               shrinkWrap: true,
-                               itemCount: provider.itemList.length,
-                               itemBuilder: (context, index) {
-                                 return itemPhanAnh(
-                                     context: context,
-                                     index: index,
-                                     provider: provider);
-                               },
-                             );
-                          }
-                        },
+                    if(provider.itemList.isEmpty) ... [
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text('Hiện chưa có dữ liệu'),
+                            const SizedBox(height: 10,),
+                            InkWell(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    color: Colors.blue
+                                ),
+                                padding: const EdgeInsets.symmetric(vertical: 10,horizontal: 20),
+                                child: const Text('Tải lại', style: TextStyle(color: Colors.white),),
+                              ),
+                            )
+                          ],
+                        ),
                       ),
-                    )
+                    ] else ... [
+                      Expanded(
+                        child: provider.isFilterLoadRunning ? const Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.blue,
+                          ),
+                        ) : ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: provider.itemList.length,
+                          itemBuilder: (context, index) {
+                            return itemPhanAnh(
+                                context: context,
+                                index: index,
+                                provider: provider);
+                          },
+                        ),
+                      )
+                    ]
+
                   ],
                 );
               }
@@ -134,7 +150,7 @@ class _PhanAnhPageState extends State<PhanAnhPage> {
       {required BuildContext context,
       required int index,
       required PhanAnhProvider provider}) {
-    final item = provider.itemList[index];
+    final item = provider.itemList;
     return Container(
       color: Colors.grey,
       child: Card(
@@ -156,11 +172,11 @@ class _PhanAnhPageState extends State<PhanAnhPage> {
               Row(
                 children: [
                   const Text('Ngày phản ánh:'),
-                  Text(item.ngayPhanAnh ?? '')
+                  Text(item[index].ngayPhanAnh ?? '')
                 ],
               ),
               Row(
-                children: [const Text('Địa chỉ:'), Text(item.diaChi ?? '')],
+                children: [const Text('Địa chỉ:'), Text(item[index].diaChi ?? '')],
               ),
               const Align(
                   alignment: Alignment.topLeft,
@@ -168,7 +184,7 @@ class _PhanAnhPageState extends State<PhanAnhPage> {
               Align(
                   alignment: Alignment.topLeft,
                   child: Text(
-                    item.loaiViPham!.tenLoaiViPham ?? '',
+                    item[index].loaiViPham!.tenLoaiViPham ?? '',
                     maxLines: 2,
                   )),
               const Align(
@@ -176,7 +192,7 @@ class _PhanAnhPageState extends State<PhanAnhPage> {
                   child: Text('Nội dung phản ánh:')),
               Align(
                   alignment: Alignment.topLeft,
-                  child: Text(item.noiDung ?? '')),
+                  child: Text(item[index].noiDung ?? '')),
             ],
           ),
         ),
