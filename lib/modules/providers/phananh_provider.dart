@@ -1,55 +1,94 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 
 import '../../services/services.dart';
 import '../modules.dart';
 
-class PhanAnhProvider extends ChangeNotifier{
+class PhanAnhProvider extends ChangeNotifier {
+  final ScrollController _controller = ScrollController();
+  APIRequestStatus _apiRequestStatus = APIRequestStatus.loading;
+  final ApiClient _apiClient = ApiClient();
   int _currentIndex = 0;
   List<PhanAnh> _itemList = [];
   List<LoaiPhanAnh> _itemListLPA = [];
   int pageIndex = 1;
   int pageSize = 10;
-  bool _isFilterLoadRunning = false;
-  bool _isLoadMoreRunning = false;
+  bool _loadingMore = false;
+  bool _loadMore = true;
 
-  bool get isFilterLoadRunning => _isFilterLoadRunning;
-  bool get isLoadMoreRunning => _isLoadMoreRunning;
+  ScrollController get controller => _controller;
+  APIRequestStatus get apiRequestStatus => _apiRequestStatus;
+  ApiClient get apiClient => _apiClient;
   int get currentIndex => _currentIndex;
-
   List<PhanAnh> get itemList => _itemList;
-  List<LoaiPhanAnh>  get itemListLPA => _itemListLPA;
+  List<LoaiPhanAnh> get itemListLPA => _itemListLPA;
+  bool get loadingMore => _loadingMore;
+  bool get loadMore => _loadMore;
 
-  bool get isEmpty => _itemList.isEmpty;
-
-  void updateCurrent(int index){
-    _currentIndex = index;
-    notifyListeners();
+  listener() {
+    _controller.addListener(() {
+      if (_controller.position.pixels == _controller.position.maxScrollExtent) {
+        if (!_loadingMore) {
+          paginate();
+          // Animate to bottom of list
+          Timer(const Duration(milliseconds: 100), () {
+            _controller.animateTo(
+              _controller.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 100),
+              curve: Curves.easeIn,
+            );
+          });
+        }
+      }
+    });
   }
 
-  void updateIsFilterLoadingRunning(bool value){
-    _isFilterLoadRunning = value;
-    notifyListeners();
+  getPA() async {
+    setApiRequestStatus(APIRequestStatus.loading);
+    try {
+      final items =
+          await apiClient.getDataPA(pageSize: pageSize, pageIndex: pageIndex);
+      _itemList = items;
+      setApiRequestStatus(APIRequestStatus.loaded);
+      listener();
+    } catch (e) {
+      setApiRequestStatus(APIRequestStatus.error);
+      rethrow;
+    }
   }
 
-  void loadMore() async {
-    if ((isFilterLoadRunning == false) && _isLoadMoreRunning == false) {
-      _isLoadMoreRunning = true;
-      pageIndex += 1; // Increase _page by 1
-      final items = await ApiClient().getDataPA(
-        pageIndex: pageIndex,
-        pageSize: pageSize,
-      );
-      if (items.isNotEmpty) {
-        _itemList.addAll(items);
+  paginate() async {
+    if (_apiRequestStatus != APIRequestStatus.loading &&
+        !_loadingMore &&
+        _loadMore) {
+      Timer(const Duration(milliseconds: 100), () {
+        _controller.jumpTo(_controller.position.maxScrollExtent);
+      });
+      _loadingMore = true;
+      pageIndex = pageIndex + 1;
+      notifyListeners();
+      try {
+        final items = await _apiClient.getDataPA(
+          pageIndex: pageIndex,
+          pageSize: pageSize,
+        );
+        if (items.isNotEmpty) {
+          _itemList.addAll(items);
+        }
+        _loadingMore = false;
+        notifyListeners();
+      } catch (e) {
+        _loadMore = false;
+        _loadingMore = false;
+        notifyListeners();
+        rethrow;
       }
     }
-    _isLoadMoreRunning = false;
-    notifyListeners();
   }
 
-  Future<void> getData() async {
-    final items = await ApiClient().getDataPA(pageSize: pageSize, pageIndex: pageIndex);
-    _itemList = items;
+  void updateCurrent(int index) {
+    _currentIndex = index;
     notifyListeners();
   }
 
@@ -66,29 +105,25 @@ class PhanAnhProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-  Future<void> filterLoad() async {
-    _isFilterLoadRunning = true;
-    // final items = await ApiClient().getDataPA(
-    //     pageSize: pageSize,
-    //     pageIndex: pageIndex,
-    //     duongId: filter.duongId,
-    //     tuNgay: filter.tuNgay,
-    //     denNgay: filter.denNgay,
-    //     LoaiViPhamIds: filter.loaiViPhamIds,
-    //     phuongXaId: filter.phuongXaId);
-    // _itemList = items;
-    _isFilterLoadRunning = false;
-    notifyListeners();
-  }
-  
-
-  Future<void> getFilter(int idLPA) async {
-    _isFilterLoadRunning = true;
-    if(idLPA != 0){
-      var items = await ApiClient().getDataPA(pageIndex: pageIndex, pageSize: pageSize,LoaiPhanAnhId: idLPA);
-      _itemList = items;
+  getPAFilter(int idLPA) async {
+    try {
+      if (idLPA != 0) {
+        setApiRequestStatus(APIRequestStatus.loading);
+        final items =
+            await apiClient.getDataPA(pageSize: pageSize, pageIndex: pageIndex, LoaiPhanAnhId: idLPA);
+        _itemList = items;
+        setApiRequestStatus(APIRequestStatus.loaded);
+        listener();
+      }
+      notifyListeners();
+    } catch (e) {
+      setApiRequestStatus(APIRequestStatus.error);
+      rethrow;
     }
-    _isFilterLoadRunning = false;
+  }
+
+  void setApiRequestStatus(APIRequestStatus value) {
+    _apiRequestStatus = value;
     notifyListeners();
   }
 }

@@ -54,8 +54,8 @@ class PhanAnh {
         ? TinhTrangPhanAnh.fromJson(json['tinhTrangPhanAnh'])
         : null;
     nguoiGuiId = json['nguoiGuiId'];
-    gpsLat = json['gpsLat'];
-    gpsLng = json['gpsLng'];
+    gpsLat = json['gpsLat'] == 0 ? 0.0 : json['gpsLat'];
+    gpsLng = json['gpsLng'] == 0 ? 0.0 : json['gpsLng'];
     tenDonViXuLy = json['tenDonViXuLy'];
     if (json['tepDinhKems'] != null) {
       tepDinhKems = <TepDinhKems>[];
@@ -203,7 +203,7 @@ class ThongTinXuLy {
   KiemTraKhacPhuc? kiemTraKhacPhuc;
   PhanHoi? phanHoi;
   ThongTinChuyenPhanAnh? thongTinChuyenPhanAnh;
-  String? thongTinChuyenBienBan;
+  ThongTinChuyenBienBan? thongTinChuyenBienBan;
 
   ThongTinXuLy(
       {this.xuLy,
@@ -223,8 +223,12 @@ class ThongTinXuLy {
         : null;
     phanHoi =
         json['phanHoi'] != null ? PhanHoi.fromJson(json['phanHoi']) : null;
-    thongTinChuyenPhanAnh = json['thongTinChuyenPhanAnh'];
-    thongTinChuyenBienBan = json['thongTinChuyenBienBan'];
+    thongTinChuyenPhanAnh = json['thongTinChuyenPhanAnh'] != null
+        ? ThongTinChuyenPhanAnh.fromJson(json['thongTinChuyenPhanAnh'])
+        : null;
+    thongTinChuyenBienBan = json['thongTinChuyenBienBan'] != null
+        ? ThongTinChuyenBienBan.fromJson(json['thongTinChuyenBienBan'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -508,6 +512,39 @@ class ThongTinChuyenPhanAnh {
       this.tenNguoiChuyen});
 
   ThongTinChuyenPhanAnh.fromJson(Map<String, dynamic> json) {
+    thongTinChuyenId = json['thongTinChuyenId'];
+    nguoiChuyenId = json['nguoiChuyenId'];
+    ngayChuyen = json['ngayChuyen'];
+    lyDo = json['lyDo'];
+    tenNguoiChuyen = json['tenNguoiChuyen'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['thongTinChuyenId'] = thongTinChuyenId;
+    data['nguoiChuyenId'] = nguoiChuyenId;
+    data['ngayChuyen'] = ngayChuyen;
+    data['lyDo'] = lyDo;
+    data['tenNguoiChuyen'] = tenNguoiChuyen;
+    return data;
+  }
+}
+
+class ThongTinChuyenBienBan {
+  int? thongTinChuyenId;
+  int? nguoiChuyenId;
+  String? ngayChuyen;
+  String? lyDo;
+  String? tenNguoiChuyen;
+
+  ThongTinChuyenBienBan(
+      {this.thongTinChuyenId,
+      this.nguoiChuyenId,
+      this.ngayChuyen,
+      this.lyDo,
+      this.tenNguoiChuyen});
+
+  ThongTinChuyenBienBan.fromJson(Map<String, dynamic> json) {
     thongTinChuyenId = json['thongTinChuyenId'];
     nguoiChuyenId = json['nguoiChuyenId'];
     ngayChuyen = json['ngayChuyen'];
