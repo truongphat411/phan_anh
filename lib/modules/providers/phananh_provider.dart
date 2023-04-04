@@ -47,7 +47,7 @@ class PhanAnhProvider extends ChangeNotifier {
   getPA() async {
     setApiRequestStatus(APIRequestStatus.loading);
     try {
-      final items =
+      var items =
           await apiClient.getDataPA(pageSize: pageSize, pageIndex: pageIndex);
       _itemList = items;
       setApiRequestStatus(APIRequestStatus.loaded);
@@ -107,14 +107,16 @@ class PhanAnhProvider extends ChangeNotifier {
 
   getPAFilter(int idLPA) async {
     try {
+      setApiRequestStatus(APIRequestStatus.loading);
+      List<PhanAnh> items;
       if (idLPA != 0) {
-        setApiRequestStatus(APIRequestStatus.loading);
-        final items =
-            await apiClient.getDataPA(pageSize: pageSize, pageIndex: pageIndex, LoaiPhanAnhId: idLPA);
-        _itemList = items;
-        setApiRequestStatus(APIRequestStatus.loaded);
-        listener();
+        items = await apiClient.getDataPA(pageSize: pageSize, pageIndex: pageIndex, LoaiPhanAnhId: idLPA);
+      }else{
+        items = await apiClient.getDataPA(pageSize: pageSize, pageIndex: pageIndex);
       }
+      _itemList = items;
+      setApiRequestStatus(APIRequestStatus.loaded);
+      listener();
       notifyListeners();
     } catch (e) {
       setApiRequestStatus(APIRequestStatus.error);

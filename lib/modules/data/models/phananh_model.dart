@@ -12,8 +12,6 @@ class PhanAnh {
   LoaiViPham? loaiViPham;
   TinhTrangPhanAnh? tinhTrangPhanAnh;
   int? nguoiGuiId;
-  double? gpsLat;
-  double? gpsLng;
   String? tenDonViXuLy;
   List<TepDinhKems>? tepDinhKems;
   ThongTinXuLy? thongTinXuLy;
@@ -30,8 +28,6 @@ class PhanAnh {
       this.loaiViPham,
       this.tinhTrangPhanAnh,
       this.nguoiGuiId,
-      this.gpsLat,
-      this.gpsLng,
       this.tenDonViXuLy,
       this.tepDinhKems,
       this.thongTinXuLy});
@@ -54,8 +50,6 @@ class PhanAnh {
         ? TinhTrangPhanAnh.fromJson(json['tinhTrangPhanAnh'])
         : null;
     nguoiGuiId = json['nguoiGuiId'];
-    gpsLat = json['gpsLat'] == 0 ? 0.0 : json['gpsLat'];
-    gpsLng = json['gpsLng'] == 0 ? 0.0 : json['gpsLng'];
     tenDonViXuLy = json['tenDonViXuLy'];
     if (json['tepDinhKems'] != null) {
       tepDinhKems = <TepDinhKems>[];
@@ -87,8 +81,6 @@ class PhanAnh {
       data['tinhTrangPhanAnh'] = tinhTrangPhanAnh!.toJson();
     }
     data['nguoiGuiId'] = nguoiGuiId;
-    data['gpsLat'] = gpsLat;
-    data['gpsLng'] = gpsLng;
     data['tenDonViXuLy'] = tenDonViXuLy;
     if (tepDinhKems != null) {
       data['tepDinhKems'] = tepDinhKems!.map((v) => v.toJson()).toList();
