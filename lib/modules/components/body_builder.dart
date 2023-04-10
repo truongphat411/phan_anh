@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phan_anh/utils/utils.dart';
 import '../../services/services.dart';
 import '../modules.dart';
 
@@ -9,9 +10,9 @@ class BodyBuilder extends StatelessWidget {
 
   const BodyBuilder(
       {Key? key,
-        required this.apiRequestStatus,
-        required this.child,
-        required this.reload})
+      required this.apiRequestStatus,
+      required this.child,
+      required this.reload})
       : super(key: key);
 
   @override
@@ -26,7 +27,10 @@ class BodyBuilder extends StatelessWidget {
       case APIRequestStatus.error:
         return const LoadingWidget();
       case APIRequestStatus.loaded:
-        return child;
+        return Container(
+          color: ColorSelect.backGroundColor,
+          child: child,
+        );
       default:
         return const LoadingWidget();
     }

@@ -93,16 +93,24 @@ class PhanAnhProvider extends ChangeNotifier {
   }
 
   Future<void> getDataLPA() async {
-    final List<LoaiPhanAnh> itemsPA = await ApiClient().getDataLPA();
-    _itemListLPA = itemsPA;
-    LoaiPhanAnh loaiPhanAnh = LoaiPhanAnh()
-      ..loaiPhanAnhId = 0
-      ..tenLoaiPhanAnh = 'Tất cả'
-      ..moTa = null
-      ..maLoaiPhanAnh = null
-      ..maPhanLoai = null;
-    _itemListLPA.insert(0, loaiPhanAnh);
-    notifyListeners();
+    setApiRequestStatus(APIRequestStatus.loading);
+    try{
+      final List<LoaiPhanAnh> itemsPA = await ApiClient().getDataLPA();
+      _itemListLPA = itemsPA;
+      LoaiPhanAnh loaiPhanAnh = LoaiPhanAnh()
+        ..loaiPhanAnhId = 0
+        ..tenLoaiPhanAnh = 'Tất cả'
+        ..moTa = null
+        ..maLoaiPhanAnh = null
+        ..maPhanLoai = null;
+      _itemListLPA.insert(0, loaiPhanAnh);
+      setApiRequestStatus(APIRequestStatus.loaded);
+      notifyListeners();
+    }catch (e){
+      setApiRequestStatus(APIRequestStatus.error);
+      rethrow;
+    }
+
   }
 
   getPAFilter(int idLPA) async {

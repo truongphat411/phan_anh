@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:phan_anh/modules/pages/pages.dart';
+import 'package:phan_anh/utils/utils.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,12 +11,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(),
+    return const MaterialApp(
+      home: MyHomePage(),
     );
   }
 }
@@ -33,6 +30,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: ColorSelect.mainColor,
         title: const Text('Xử lý phản ánh'),
       ),
       body: Center(
@@ -46,10 +44,10 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 30,vertical: 20),
             decoration: BoxDecoration(
-              color: Colors.blue,
+              color: ColorSelect.mainColor,
               borderRadius: BorderRadius.circular(10)
             ),
-            child: const Text('Xử lý', style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
+            child: Text('Xử lý', style: TextStyle(color: ColorSelect.primaryColor,fontWeight: FontWeight.bold),),
           ),
         )
       ),

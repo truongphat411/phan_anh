@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../utils/utils.dart';
+
 class LoadingWidget extends StatelessWidget {
   final bool isImage;
 
@@ -7,9 +9,9 @@ class LoadingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: CircularProgressIndicator(
-        color: Colors.blue,
+          valueColor: AlwaysStoppedAnimation<Color>(ColorSelect.mainColor)
       ),
     );
   }
