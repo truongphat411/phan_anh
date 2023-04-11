@@ -66,7 +66,7 @@ class PhanAnhProvider extends ChangeNotifier {
         _controller.jumpTo(_controller.position.maxScrollExtent);
       });
       _loadingMore = true;
-      pageIndex = pageIndex + 1;
+      pageIndex += 1;
       notifyListeners();
       try {
         final items = await _apiClient.getDataPA(
@@ -93,7 +93,6 @@ class PhanAnhProvider extends ChangeNotifier {
   }
 
   Future<void> getDataLPA() async {
-    setApiRequestStatus(APIRequestStatus.loading);
     try{
       final List<LoaiPhanAnh> itemsPA = await ApiClient().getDataLPA();
       _itemListLPA = itemsPA;
@@ -104,13 +103,10 @@ class PhanAnhProvider extends ChangeNotifier {
         ..maLoaiPhanAnh = null
         ..maPhanLoai = null;
       _itemListLPA.insert(0, loaiPhanAnh);
-      setApiRequestStatus(APIRequestStatus.loaded);
       notifyListeners();
-    }catch (e){
+    }catch(e){
       setApiRequestStatus(APIRequestStatus.error);
-      rethrow;
     }
-
   }
 
   getPAFilter(int idLPA) async {
@@ -135,5 +131,10 @@ class PhanAnhProvider extends ChangeNotifier {
   void setApiRequestStatus(APIRequestStatus value) {
     _apiRequestStatus = value;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 }

@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:phan_anh/modules/pages/pages.dart';
 import 'package:phan_anh/utils/utils.dart';
+import 'package:provider/provider.dart';
+
+import 'modules/modules.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => PhanAnhProvider()),
+    ],
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -25,7 +33,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,23 +41,25 @@ class _MyHomePageState extends State<MyHomePage> {
         title: const Text('Xử lý phản ánh'),
       ),
       body: Center(
-        child: InkWell(
-          onTap: (){
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const PhanAnhPage()),
-            );
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 30,vertical: 20),
-            decoration: BoxDecoration(
+          child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const PhanAnhPage()),
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+          decoration: BoxDecoration(
               color: ColorSelect.mainColor,
-              borderRadius: BorderRadius.circular(10)
-            ),
-            child: Text('Xử lý', style: TextStyle(color: ColorSelect.primaryColor,fontWeight: FontWeight.bold),),
+              borderRadius: BorderRadius.circular(10)),
+          child: Text(
+            'Xử lý',
+            style: TextStyle(
+                color: ColorSelect.primaryColor, fontWeight: FontWeight.bold),
           ),
-        )
-      ),
+        ),
+      )),
     );
   }
 }

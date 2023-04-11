@@ -6,13 +6,12 @@ import '../modules.dart';
 class BodyBuilder extends StatelessWidget {
   final APIRequestStatus apiRequestStatus;
   final Widget child;
-  final Function reload;
+  final Function? reload;
 
   const BodyBuilder(
       {Key? key,
       required this.apiRequestStatus,
-      required this.child,
-      required this.reload})
+      required this.child, this.reload})
       : super(key: key);
 
   @override
@@ -27,10 +26,7 @@ class BodyBuilder extends StatelessWidget {
       case APIRequestStatus.error:
         return const LoadingWidget();
       case APIRequestStatus.loaded:
-        return Container(
-          color: ColorSelect.backGroundColor,
-          child: child,
-        );
+        return child;
       default:
         return const LoadingWidget();
     }

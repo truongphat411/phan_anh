@@ -5,16 +5,16 @@ import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 //typedef ButtonAcceptCallback = void Function(Filter filter);
 
-class BottomSheet extends StatefulWidget {
-  const BottomSheet({Key? key}) : super(key: key);
+class BottomSheetPA extends StatefulWidget {
+  const BottomSheetPA({Key? key}) : super(key: key);
 
   //final ButtonAcceptCallback onPressed;
 
   @override
-  State<BottomSheet> createState() => _BottomSheetState();
+  State<BottomSheetPA> createState() => _BottomSheetPAState();
 }
 
-class _BottomSheetState extends State<BottomSheet> {
+class _BottomSheetPAState extends State<BottomSheetPA> {
   final BottomSheetProvider _bottomSheetPAProvider = BottomSheetProvider();
   DateRangePickerController dateRangePickerController = DateRangePickerController();
 
