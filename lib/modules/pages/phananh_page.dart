@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:intl/intl.dart';
-import 'package:phan_anh/modules/providers/phananh_provider.dart';
+import 'package:phan_anh/services/enum/api_request_status.dart';
 import 'package:provider/provider.dart';
 
-import '../../services/enum/enum.dart';
 import '../../utils/utils.dart';
 import '../modules.dart';
 
@@ -15,55 +14,44 @@ class PhanAnhPage extends StatefulWidget {
   State<PhanAnhPage> createState() => _PhanAnhPageState();
 }
 
-class _PhanAnhPageState extends State<PhanAnhPage>
-    with SingleTickerProviderStateMixin {
-  late final TabController tabController;
-  late final PhanAnhProvider provider;
-  List<Tab> tabList = [];
+class _PhanAnhPageState extends State<PhanAnhPage> {
+  final PhanAnhProvider provider = PhanAnhProvider();
 
   @override
   void initState() {
     super.initState();
-    provider = Provider.of<PhanAnhProvider>(context, listen: false);
-    SchedulerBinding.instance.addPostFrameCallback(
-      (_) {
-        provider.getPA();
-      },
-    );
-    provider.getDataLPA().then((_) {
-      tabController = TabController(length: provider.itemListLPA.length, vsync: this);
-    });
+    provider.getPA();
+    provider.getDataLPA();
   }
 
+  @override
+  void dispose() {
+    provider.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<PhanAnhProvider>(
-      builder: (context, provider, child) {
-        if(provider.apiRequestStatus == APIRequestStatus.loaded){
-          return DefaultTabController(
-            length: provider.itemListLPA.length,
-            child: Scaffold(
-                appBar: appBar(provider),
-                body: Column(children: [
-                  tabBar(provider),
-                  Expanded(child: bodyList(provider))
-                ])),
-          );
-        }else if(provider.apiRequestStatus == APIRequestStatus.loading){
-            return _buildProgressIndicator();
-        }else {
-          return _buildProgressIndicator();
-        }
-      },
+    return ChangeNotifierProvider(
+      create: (context) => provider,
+      child: Scaffold(
+          appBar: appBar(),
+          body: Column(children: [
+            tabBar(provider),
+            Consumer<PhanAnhProvider>(
+              builder: (context, provider, child) {
+                return bodyList(provider);
+              },
+            )
+          ])),
     );
   }
 
-  _buildProgressIndicator() {
+  Widget _buildProgressIndicator() {
     return const LoadingWidget();
   }
 
-  PreferredSizeWidget appBar(PhanAnhProvider provider) {
+  PreferredSizeWidget appBar() {
     return AppBar(
       backgroundColor: ColorSelect.mainColor,
       leading: IconButton(
@@ -88,83 +76,47 @@ class _PhanAnhPageState extends State<PhanAnhPage>
     );
   }
 
-  // Widget tabBar(List<LoaiPhanAnh> list, int current, PhanAnhProvider provider) {
-  //   return SizedBox(
-  //       height: 60,
-  //       child: ListView.builder(
-  //           shrinkWrap: true,
-  //           itemCount: list.length,
-  //           scrollDirection: Axis.horizontal,
-  //           itemBuilder: (context, index) {
-  //             return Column(
-  //               children: [
-  //                 GestureDetector(
-  //                   onTap: () {
-  //                     provider.updateCurrent(index);
-  //                     provider.getPAFilter(index);
-  //                   },
-  //                   child: AnimatedContainer(
-  //                     duration: const Duration(milliseconds: 100),
-  //                     margin: const EdgeInsets.all(5),
-  //                     padding: const EdgeInsets.symmetric(
-  //                         horizontal: 10, vertical: 10),
-  //                     decoration: BoxDecoration(
-  //                       color: current == index
-  //                           ? ColorSelect.statusBarColor
-  //                           : Colors.white,
-  //                       borderRadius: current == index
-  //                           ? BorderRadius.circular(100)
-  //                           : null,
-  //                     ),
-  //                     child: Center(
-  //                       child: Text(
-  //                         list[index].tenLoaiPhanAnh ?? '',
-  //                         maxLines: 1,
-  //                       ),
-  //                     ),
-  //                   ),
-  //                 ),
-  //               ],
-  //             );
-  //           }));
-  // }
   Widget tabBar(PhanAnhProvider provider) {
+    final list = provider.itemListLPA;
+    final current = provider.currentIndex;
     return SizedBox(
         height: 60,
-        child: TabBar(
-          controller: tabController,
-          tabs: provider.itemListLPA.map((e) => itemLPA(e, provider)).toList(),
-        )
-    );
-  }
-
-
-  Widget itemLPA(LoaiPhanAnh item, PhanAnhProvider provider) {
-    int current = 0;
-    return GestureDetector(
-      onTap: () {
-        provider.updateCurrent(item.loaiPhanAnhId!);
-        provider.getPAFilter(item.loaiPhanAnhId!);
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 100),
-        margin: const EdgeInsets.all(5),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        decoration: BoxDecoration(
-          color: current == item.loaiPhanAnhId
-              ? ColorSelect.statusBarColor
-              : Colors.white,
-          borderRadius:
-              current == item.loaiPhanAnhId ? BorderRadius.circular(100) : null,
-        ),
-        child: Center(
-          child: Text(
-            item.tenLoaiPhanAnh ?? '',
-            maxLines: 1,
-          ),
-        ),
-      ),
-    );
+        child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: list.length,
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (context, index) {
+              return Column(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      provider.updateCurrent(index);
+                      provider.getPAFilter(index);
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 100),
+                      margin: const EdgeInsets.all(5),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: current == index
+                            ? ColorSelect.statusBarColor
+                            : Colors.white,
+                        borderRadius: current == index
+                            ? BorderRadius.circular(100)
+                            : null,
+                      ),
+                      child: Center(
+                        child: Text(
+                          list[index].tenLoaiPhanAnh ?? '',
+                          maxLines: 1,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }));
   }
 
   Widget bodyList(PhanAnhProvider provider) {
@@ -172,9 +124,27 @@ class _PhanAnhPageState extends State<PhanAnhPage>
         apiRequestStatus: provider.apiRequestStatus,
         reload: () {},
         child: provider.itemList.isNotEmpty
-            ? TabBarView(
-            controller: tabController,
-            children: provider.itemListLPA.map((e) => itemPhanAnh(context: context, index: e.loaiPhanAnhId!, provider: provider)).toList())
+            ? ListView(
+                controller: provider.controller,
+                children: [
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: provider.itemList.length,
+                    itemBuilder: (context, index) {
+                      return itemPhanAnh(
+                          context: context, index: index, provider: provider);
+                    },
+                  ),
+                  const SizedBox(height: 10.0),
+                  provider.loadingMore
+                      ? SizedBox(
+                          height: 80.0,
+                          child: _buildProgressIndicator(),
+                        )
+                      : const SizedBox(),
+                ],
+              )
             : Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,

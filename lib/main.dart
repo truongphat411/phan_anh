@@ -6,12 +6,7 @@ import 'package:provider/provider.dart';
 import 'modules/modules.dart';
 
 void main() {
-  runApp(MultiProvider(
-    providers: [
-      ChangeNotifierProvider(create: (_) => PhanAnhProvider()),
-    ],
-    child: const MyApp(),
-  ));
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {

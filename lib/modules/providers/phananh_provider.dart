@@ -94,6 +94,7 @@ class PhanAnhProvider extends ChangeNotifier {
 
   Future<void> getDataLPA() async {
     try{
+      setApiRequestStatus(APIRequestStatus.loading);
       final List<LoaiPhanAnh> itemsPA = await ApiClient().getDataLPA();
       _itemListLPA = itemsPA;
       LoaiPhanAnh loaiPhanAnh = LoaiPhanAnh()
@@ -103,9 +104,11 @@ class PhanAnhProvider extends ChangeNotifier {
         ..maLoaiPhanAnh = null
         ..maPhanLoai = null;
       _itemListLPA.insert(0, loaiPhanAnh);
+      setApiRequestStatus(APIRequestStatus.loaded);
       notifyListeners();
     }catch(e){
       setApiRequestStatus(APIRequestStatus.error);
+      rethrow;
     }
   }
 
