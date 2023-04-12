@@ -9,9 +9,13 @@ class LoadingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(ColorSelect.mainColor)
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: const Duration(seconds: 25),
+      builder: (context, value, child) => Center(
+        child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(ColorSelect.mainColor)
+        ),
       ),
     );
   }

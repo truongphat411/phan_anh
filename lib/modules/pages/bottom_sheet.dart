@@ -3,6 +3,8 @@ import 'package:phan_anh/modules/providers/bottom_sheet_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
+import '../../utils/utils.dart';
+
 //typedef ButtonAcceptCallback = void Function(Filter filter);
 
 class BottomSheetPA extends StatefulWidget {
@@ -262,13 +264,14 @@ class _BottomSheetPAState extends State<BottomSheetPA> {
                   const SizedBox(height: 20),
                   GestureDetector(
                     onTap: () {
+
                     },
                     child: Container(
                       margin: const EdgeInsets.symmetric(horizontal: 20),
                       padding: const EdgeInsets.symmetric(vertical: 20),
-                      decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(25)),
-                          color: Colors.green),
+                      decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.all(Radius.circular(25)),
+                          color: ColorSelect.mainColor),
                       child: const Center(
                         child: Text('Lọc'),
                       ),

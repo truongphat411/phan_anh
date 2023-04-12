@@ -10,26 +10,25 @@ class PhanAnhProvider extends ChangeNotifier {
   APIRequestStatus _apiRequestStatus = APIRequestStatus.loading;
   final ApiClient _apiClient = ApiClient();
   int _currentIndex = 0;
-  List<PhanAnh> _itemList = [];
+  List<PhanAnh> itemList = [];
   List<LoaiPhanAnh> _itemListLPA = [];
   int pageIndex = 1;
   int pageSize = 10;
-  bool _loadingMore = false;
-  bool _loadMore = true;
+  bool loadingMore = false;
+  bool loadMore = true;
+
 
   ScrollController get controller => _controller;
   APIRequestStatus get apiRequestStatus => _apiRequestStatus;
   ApiClient get apiClient => _apiClient;
   int get currentIndex => _currentIndex;
-  List<PhanAnh> get itemList => _itemList;
+  //List<PhanAnh> get itemList => _itemList;
   List<LoaiPhanAnh> get itemListLPA => _itemListLPA;
-  bool get loadingMore => _loadingMore;
-  bool get loadMore => _loadMore;
 
   listener() {
     _controller.addListener(() {
       if (_controller.position.pixels == _controller.position.maxScrollExtent) {
-        if (!_loadingMore) {
+        if (!loadingMore) {
           paginate();
           // Animate to bottom of list
           Timer(const Duration(milliseconds: 100), () {
@@ -49,7 +48,7 @@ class PhanAnhProvider extends ChangeNotifier {
     try {
       var items =
           await apiClient.getDataPA(pageSize: pageSize, pageIndex: pageIndex);
-      _itemList = items;
+      itemList = items;
       setApiRequestStatus(APIRequestStatus.loaded);
       listener();
     } catch (e) {
@@ -60,12 +59,12 @@ class PhanAnhProvider extends ChangeNotifier {
 
   paginate() async {
     if (_apiRequestStatus != APIRequestStatus.loading &&
-        !_loadingMore &&
-        _loadMore) {
+        !loadingMore &&
+        loadMore) {
       Timer(const Duration(milliseconds: 100), () {
         _controller.jumpTo(_controller.position.maxScrollExtent);
       });
-      _loadingMore = true;
+      loadingMore = true;
       pageIndex += 1;
       notifyListeners();
       try {
@@ -74,13 +73,13 @@ class PhanAnhProvider extends ChangeNotifier {
           pageSize: pageSize,
         );
         if (items.isNotEmpty) {
-          _itemList.addAll(items);
+          itemList.addAll(items);
         }
-        _loadingMore = false;
+        loadingMore = false;
         notifyListeners();
       } catch (e) {
-        _loadMore = false;
-        _loadingMore = false;
+        loadMore = false;
+        loadingMore = false;
         notifyListeners();
         rethrow;
       }
@@ -94,6 +93,7 @@ class PhanAnhProvider extends ChangeNotifier {
 
   Future<void> getDataLPA() async {
     try{
+      _itemListLPA = [];
       setApiRequestStatus(APIRequestStatus.loading);
       final List<LoaiPhanAnh> itemsPA = await ApiClient().getDataLPA();
       _itemListLPA = itemsPA;
@@ -107,26 +107,23 @@ class PhanAnhProvider extends ChangeNotifier {
       setApiRequestStatus(APIRequestStatus.loaded);
       notifyListeners();
     }catch(e){
-      setApiRequestStatus(APIRequestStatus.error);
       rethrow;
     }
   }
 
   getPAFilter(int idLPA) async {
     try {
+      pageIndex = 1;
       setApiRequestStatus(APIRequestStatus.loading);
-      List<PhanAnh> items;
       if (idLPA != 0) {
-        items = await apiClient.getDataPA(pageSize: pageSize, pageIndex: pageIndex, LoaiPhanAnhId: idLPA);
+        itemList = await apiClient.getDataPA(pageSize: pageSize, pageIndex: pageIndex, LoaiPhanAnhId: idLPA);
       }else{
-        items = await apiClient.getDataPA(pageSize: pageSize, pageIndex: pageIndex);
+        itemList = await apiClient.getDataPA(pageSize: pageSize, pageIndex: pageIndex);
       }
-      _itemList = items;
       setApiRequestStatus(APIRequestStatus.loaded);
       listener();
       notifyListeners();
     } catch (e) {
-      setApiRequestStatus(APIRequestStatus.error);
       rethrow;
     }
   }
@@ -134,10 +131,5 @@ class PhanAnhProvider extends ChangeNotifier {
   void setApiRequestStatus(APIRequestStatus value) {
     _apiRequestStatus = value;
     notifyListeners();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }

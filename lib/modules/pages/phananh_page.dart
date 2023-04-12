@@ -14,50 +14,45 @@ class PhanAnhPage extends StatefulWidget {
   State<PhanAnhPage> createState() => _PhanAnhPageState();
 }
 
-class _PhanAnhPageState extends State<PhanAnhPage> {
-  final PhanAnhProvider provider = PhanAnhProvider();
-
+class _PhanAnhPageState extends State<PhanAnhPage>
+    with AutomaticKeepAliveClientMixin {
   @override
   void initState() {
     super.initState();
-    provider.getPA();
-    provider.getDataLPA();
-  }
-
-  @override
-  void dispose() {
-    provider.dispose();
-    super.dispose();
+    SchedulerBinding.instance.addPostFrameCallback(
+      (_) {
+        Provider.of<PhanAnhProvider>(context, listen: false).getPA();
+        Provider.of<PhanAnhProvider>(context, listen: false).getDataLPA();
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => provider,
-      child: Scaffold(
-          appBar: appBar(),
-          body: Column(children: [
-            tabBar(provider),
-            Consumer<PhanAnhProvider>(
-              builder: (context, provider, child) {
-                return bodyList(provider);
-              },
-            )
-          ])),
-    );
+    super.build(context);
+    return Scaffold(
+        appBar: appBar(context),
+        body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Consumer<PhanAnhProvider>(
+            builder: (context, provider, child) {
+              return tabBar(provider);
+            },
+          ),
+          Consumer<PhanAnhProvider>(
+            builder: (context, provider, child) {
+              return Expanded(child: bodyList(provider));
+            },
+          )
+        ]));
   }
 
-  Widget _buildProgressIndicator() {
-    return const LoadingWidget();
-  }
-
-  PreferredSizeWidget appBar() {
+  PreferredSizeWidget appBar(BuildContext context) {
     return AppBar(
       backgroundColor: ColorSelect.mainColor,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back_rounded),
         onPressed: () {
-          Navigator.of(context).pop();
+          Navigator.pop(context);
         },
       ),
       title: Text(
@@ -69,7 +64,7 @@ class _PhanAnhPageState extends State<PhanAnhPage> {
         IconButton(
           icon: const Icon(Icons.filter_alt_outlined),
           onPressed: () {
-            Navigator.of(context).pop();
+            bottomSheet();
           },
         ),
       ],
@@ -94,7 +89,7 @@ class _PhanAnhPageState extends State<PhanAnhPage> {
                       provider.getPAFilter(index);
                     },
                     child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 100),
+                      duration: const Duration(milliseconds: 300),
                       margin: const EdgeInsets.all(5),
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 10),
@@ -138,9 +133,9 @@ class _PhanAnhPageState extends State<PhanAnhPage> {
                   ),
                   const SizedBox(height: 10.0),
                   provider.loadingMore
-                      ? SizedBox(
+                      ? const SizedBox(
                           height: 80.0,
-                          child: _buildProgressIndicator(),
+                          child: Center(child: CircularProgressIndicator()),
                         )
                       : const SizedBox(),
                 ],
@@ -181,12 +176,18 @@ class _PhanAnhPageState extends State<PhanAnhPage> {
     DateTime date = DateTime.parse(dateString);
     String formattedDate = DateFormat('HH:mm dd/MM/yyyy').format(date);
     return Card(
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10))),
       elevation: 2,
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Column(
         children: [
           Container(
-            color: ColorSelect.mainColor,
+            decoration: BoxDecoration(
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(10)),
+              color: ColorSelect.mainColor,
+            ),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -302,4 +303,7 @@ class _PhanAnhPageState extends State<PhanAnhPage> {
         )),
         builder: (context) => const BottomSheetPA());
   }
+
+  @override
+  bool get wantKeepAlive => false;
 }

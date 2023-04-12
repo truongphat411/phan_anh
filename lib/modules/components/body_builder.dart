@@ -11,7 +11,8 @@ class BodyBuilder extends StatelessWidget {
   const BodyBuilder(
       {Key? key,
       required this.apiRequestStatus,
-      required this.child, this.reload})
+      required this.child,
+      this.reload})
       : super(key: key);
 
   @override
@@ -26,7 +27,7 @@ class BodyBuilder extends StatelessWidget {
       case APIRequestStatus.error:
         return const LoadingWidget();
       case APIRequestStatus.loaded:
-        return child;
+        return Container(color: ColorSelect.backGroundColor, child: child);
       default:
         return const LoadingWidget();
     }

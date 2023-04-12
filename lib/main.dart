@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:phan_anh/modules/pages/pages.dart';
 import 'package:phan_anh/utils/utils.dart';
 import 'package:provider/provider.dart';
 
 import 'modules/modules.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => PhanAnhProvider())
+      ],
+      child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
