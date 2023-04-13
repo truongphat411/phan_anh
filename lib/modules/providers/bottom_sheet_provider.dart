@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import '../../services/services.dart';
 import '../modules.dart';
 
-
 class BottomSheetProvider extends ChangeNotifier {
   List<LoaiPhanAnh> _loaiPAList = [];
   List<LoaiViPham> _loaiVPList = [];
@@ -65,7 +64,7 @@ class BottomSheetProvider extends ChangeNotifier {
 
   Future<void> getLoaiVPList(int loaiPhanAnhId) async {
     final List<LoaiViPham> items =
-    await ApiClient().getDataLVP(loaiPhanAnhId: loaiPhanAnhId);
+        await ApiClient().getDataLVP(loaiPhanAnhId: loaiPhanAnhId);
     _loaiVPList = items;
     notifyListeners();
   }
@@ -80,7 +79,7 @@ class BottomSheetProvider extends ChangeNotifier {
     _dList = [];
     _duongId = null;
     final List<Duong> items =
-    await ApiClient().getDataD(phuongXaId: phuongXaId);
+        await ApiClient().getDataD(phuongXaId: phuongXaId);
     _dList = items;
     notifyListeners();
   }

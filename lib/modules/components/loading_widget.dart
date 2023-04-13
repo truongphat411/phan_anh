@@ -11,7 +11,7 @@ class LoadingWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
-      duration: const Duration(seconds: 25),
+      duration: const Duration(seconds: 10),
       builder: (context, value, child) => Center(
         child: CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(ColorSelect.mainColor)

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:intl/intl.dart';
+import 'package:phan_anh/modules/components/dialog_picker.dart';
 import 'package:phan_anh/services/enum/api_request_status.dart';
 import 'package:provider/provider.dart';
 
@@ -43,7 +44,17 @@ class _PhanAnhPageState extends State<PhanAnhPage>
               return Expanded(child: bodyList(provider));
             },
           )
-        ]));
+        ]),
+      floatingActionButton: ElevatedButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (_) => DialogPicker(tittle: 'Chọn loại phản ánh', list: const []),
+          );
+        },
+        child: const Text('Open Dialog'),
+      ),
+    );
   }
 
   PreferredSizeWidget appBar(BuildContext context) {
@@ -144,20 +155,29 @@ class _PhanAnhPageState extends State<PhanAnhPage>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('Hiện chưa có dữ liệu'),
+                    const Text('Không có phản ánh', style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold
+                    )),
                     const SizedBox(
                       height: 10,
+                    ),
+                    const Text('Hiện không có phản ánh nào', style: TextStyle(
+                        fontSize: 14,
+                    )),
+                    const SizedBox(
+                      height: 20,
                     ),
                     InkWell(
                       child: Container(
                         decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            color: Colors.blue),
+                            borderRadius: BorderRadius.circular(10),
+                            color: ColorSelect.statusBarColor),
                         padding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 20),
-                        child: const Text(
+                            vertical: 10, horizontal: 28),
+                        child: Text(
                           'Tải lại',
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(color: ColorSelect.mainColor,fontWeight: FontWeight.w900),
                         ),
                       ),
                     )
