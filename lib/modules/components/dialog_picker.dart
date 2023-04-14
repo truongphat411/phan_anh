@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import '../../utils/utils.dart';
 import '../modules.dart';
 
+
 class DialogPicker extends StatefulWidget {
-  DialogPicker({Key? key, required this.tittle, required this.list})
+  DialogPicker({Key? key, required this.title, required this.list})
       : super(key: key);
-  String tittle;
-  List<ItemPicker> list;
+  String title;
+  List<LoaiPhanAnh> list;
 
   @override
   State<DialogPicker> createState() => _DialogPickerState();
@@ -52,7 +53,7 @@ class _DialogPickerState extends State<DialogPicker> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    widget.tittle,
+                    widget.title,
                     style: const TextStyle(fontSize: 16),
                   ),
                   InkWell(
@@ -97,14 +98,25 @@ class _DialogPickerState extends State<DialogPicker> {
                 child: ListView.builder(
                   itemCount: widget.list.length,
                   itemBuilder: (context, index) {
-                    return Container(
-                      padding: const EdgeInsets.all(8),
-                      child: InkWell(
-                        onTap: () {},
-                        child: Text(
-                          widget.list[index].name ?? '',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
+                    return GestureDetector(
+                      onTap: () {},
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            child: InkWell(
+                              onTap: () {},
+                              child: Text(
+                                widget.list[index].tenLoaiPhanAnh ?? '',
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            height: 1,
+                            color: Colors.black,
+                          )
+                        ],
                       ),
                     );
                   },

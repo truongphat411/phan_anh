@@ -15,49 +15,47 @@ class PhanAnhPage extends StatefulWidget {
   State<PhanAnhPage> createState() => _PhanAnhPageState();
 }
 
-class _PhanAnhPageState extends State<PhanAnhPage>
-    with AutomaticKeepAliveClientMixin {
+class _PhanAnhPageState extends State<PhanAnhPage> {
   @override
   void initState() {
     super.initState();
     SchedulerBinding.instance.addPostFrameCallback(
       (_) {
         Provider.of<PhanAnhProvider>(context, listen: false).getPA();
-        Provider.of<PhanAnhProvider>(context, listen: false).getDataLPA();
+        Provider.of<PhanAnhProvider>(context, listen: false).getData();
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
+    Filter filter = Filter();
+    List<LoaiPhanAnh> listLPA = [];
     return Scaffold(
-        appBar: appBar(context),
-        body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Consumer<PhanAnhProvider>(
-            builder: (context, provider, child) {
-              return tabBar(provider);
-            },
-          ),
-          Consumer<PhanAnhProvider>(
-            builder: (context, provider, child) {
-              return Expanded(child: bodyList(provider));
-            },
-          )
-        ]),
-      floatingActionButton: ElevatedButton(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (_) => DialogPicker(tittle: 'Chọn loại phản ánh', list: const []),
-          );
+      appBar: appBar(context, filter,listLPA),
+      body: Consumer<PhanAnhProvider>(
+        builder: (context, provider, child) {
+          if (provider.loadLPA) {
+            return const Center(child: LoadingWidget());
+          } else {
+            listLPA = provider.itemListLPA;
+            return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  tabBar(provider, filter),
+                  Consumer<PhanAnhProvider>(
+                    builder: (context, provider, child) {
+                      return Expanded(child: bodyList(provider));
+                    },
+                  )
+                ]);
+          }
         },
-        child: const Text('Open Dialog'),
       ),
     );
   }
 
-  PreferredSizeWidget appBar(BuildContext context) {
+  PreferredSizeWidget appBar(BuildContext context, Filter filter,List<LoaiPhanAnh> listLPA) {
     return AppBar(
       backgroundColor: ColorSelect.mainColor,
       leading: IconButton(
@@ -75,14 +73,14 @@ class _PhanAnhPageState extends State<PhanAnhPage>
         IconButton(
           icon: const Icon(Icons.filter_alt_outlined),
           onPressed: () {
-            bottomSheet();
+            bottomSheet(filter,listLPA);
           },
         ),
       ],
     );
   }
 
-  Widget tabBar(PhanAnhProvider provider) {
+  Widget tabBar(PhanAnhProvider provider, Filter filter) {
     final list = provider.itemListLPA;
     final current = provider.currentIndex;
     return SizedBox(
@@ -96,8 +94,12 @@ class _PhanAnhPageState extends State<PhanAnhPage>
                 children: [
                   GestureDetector(
                     onTap: () {
+                      LoaiPhanAnh lpa = provider.itemListLPA.firstWhere(
+                          (element) => element.loaiPhanAnhId == index);
+                      filter.phananh = lpa;
                       provider.updateCurrent(index);
-                      provider.getPAFilter(index);
+                      provider.getPAFilter(filter);
+                      print('PhatNMT-debug-filter:${filter.phananh}');
                     },
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 300),
@@ -126,9 +128,13 @@ class _PhanAnhPageState extends State<PhanAnhPage>
   }
 
   Widget bodyList(PhanAnhProvider provider) {
-    return BodyBuilder(
-        apiRequestStatus: provider.apiRequestStatus,
-        reload: () {},
+    if (provider.loadPA) {
+      return const Center(
+        child: LoadingWidget(),
+      );
+    } else {
+      return Container(
+        color: ColorSelect.backGroundColor,
         child: provider.itemList.isNotEmpty
             ? ListView(
                 controller: provider.controller,
@@ -155,16 +161,16 @@ class _PhanAnhPageState extends State<PhanAnhPage>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('Không có phản ánh', style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold
-                    )),
+                    const Text('Không có phản ánh',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold)),
                     const SizedBox(
                       height: 10,
                     ),
-                    const Text('Hiện không có phản ánh nào', style: TextStyle(
-                        fontSize: 14,
-                    )),
+                    const Text('Hiện không có phản ánh nào',
+                        style: TextStyle(
+                          fontSize: 14,
+                        )),
                     const SizedBox(
                       height: 20,
                     ),
@@ -177,13 +183,17 @@ class _PhanAnhPageState extends State<PhanAnhPage>
                             vertical: 10, horizontal: 28),
                         child: Text(
                           'Tải lại',
-                          style: TextStyle(color: ColorSelect.mainColor,fontWeight: FontWeight.w900),
+                          style: TextStyle(
+                              color: ColorSelect.mainColor,
+                              fontWeight: FontWeight.w900),
                         ),
                       ),
                     )
                   ],
                 ),
-              ));
+              ),
+      );
+    }
   }
 
   Widget itemPhanAnh(
@@ -312,7 +322,7 @@ class _PhanAnhPageState extends State<PhanAnhPage>
     );
   }
 
-  Future<void> bottomSheet() async {
+  Future<void> bottomSheet(Filter filter,List<LoaiPhanAnh> listLPA) async {
     await showModalBottomSheet(
         context: context,
         isScrollControlled: true,
@@ -321,9 +331,9 @@ class _PhanAnhPageState extends State<PhanAnhPage>
             borderRadius: BorderRadius.vertical(
           top: Radius.circular(20),
         )),
-        builder: (context) => const BottomSheetPA());
+        builder: (context) => BottomSheetPA(
+              filter: filter,
+              listLPA: listLPA,
+            ));
   }
-
-  @override
-  bool get wantKeepAlive => false;
 }

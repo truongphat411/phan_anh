@@ -7,23 +7,28 @@ import '../modules.dart';
 
 class PhanAnhProvider extends ChangeNotifier {
   final ScrollController _controller = ScrollController();
-  APIRequestStatus _apiRequestStatus = APIRequestStatus.loading;
   final ApiClient _apiClient = ApiClient();
   int _currentIndex = 0;
-  List<PhanAnh> itemList = [];
+  List<PhanAnh> _itemList = [];
   List<LoaiPhanAnh> _itemListLPA = [];
+  List<PhuongXa> _itemListPX = [];
+  List<LoaiViPham> _itemListLVP = [];
   int pageIndex = 1;
   int pageSize = 10;
   bool loadingMore = false;
   bool loadMore = true;
-
+  bool loadLPA = false;
+  bool loadPA = false;
+  bool loadFilter = false;
+  Filter? filter;
 
   ScrollController get controller => _controller;
-  APIRequestStatus get apiRequestStatus => _apiRequestStatus;
   ApiClient get apiClient => _apiClient;
   int get currentIndex => _currentIndex;
-  //List<PhanAnh> get itemList => _itemList;
+  List<PhanAnh> get itemList => _itemList;
   List<LoaiPhanAnh> get itemListLPA => _itemListLPA;
+  List<PhuongXa> get itemListPX => _itemListPX;
+  List<LoaiViPham> get itemListLVP => _itemListLVP;
 
   listener() {
     _controller.addListener(() {
@@ -44,23 +49,21 @@ class PhanAnhProvider extends ChangeNotifier {
   }
 
   getPA() async {
-    setApiRequestStatus(APIRequestStatus.loading);
+    setLoadPA(true);
     try {
       var items =
           await apiClient.getDataPA(pageSize: pageSize, pageIndex: pageIndex);
-      itemList = items;
-      setApiRequestStatus(APIRequestStatus.loaded);
+      _itemList = items;
+      setLoadPA(false);
       listener();
     } catch (e) {
-      setApiRequestStatus(APIRequestStatus.error);
+      setLoadPA(true);
       rethrow;
     }
   }
 
   paginate() async {
-    if (_apiRequestStatus != APIRequestStatus.loading &&
-        !loadingMore &&
-        loadMore) {
+    if (!loadPA && !loadingMore && loadMore) {
       Timer(const Duration(milliseconds: 100), () {
         _controller.jumpTo(_controller.position.maxScrollExtent);
       });
@@ -73,7 +76,7 @@ class PhanAnhProvider extends ChangeNotifier {
           pageSize: pageSize,
         );
         if (items.isNotEmpty) {
-          itemList.addAll(items);
+          _itemList.addAll(items);
         }
         loadingMore = false;
         notifyListeners();
@@ -91,12 +94,14 @@ class PhanAnhProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> getDataLPA() async {
-    try{
+  Future<void> getData() async {
+    try {
       _itemListLPA = [];
-      setApiRequestStatus(APIRequestStatus.loading);
+      setLoadLPA(true);
       final List<LoaiPhanAnh> itemsPA = await ApiClient().getDataLPA();
       _itemListLPA = itemsPA;
+      final List<PhuongXa> itemsPX = await ApiClient().getDataPX();
+      _itemListPX = itemsPX;
       LoaiPhanAnh loaiPhanAnh = LoaiPhanAnh()
         ..loaiPhanAnhId = 0
         ..tenLoaiPhanAnh = 'Tất cả'
@@ -104,23 +109,37 @@ class PhanAnhProvider extends ChangeNotifier {
         ..maLoaiPhanAnh = null
         ..maPhanLoai = null;
       _itemListLPA.insert(0, loaiPhanAnh);
-      setApiRequestStatus(APIRequestStatus.loaded);
+      setLoadLPA(false);
       notifyListeners();
-    }catch(e){
+    } catch (e) {
       rethrow;
     }
   }
 
-  getPAFilter(int idLPA) async {
+  getPAFilter(Filter value) async {
     try {
       pageIndex = 1;
-      setApiRequestStatus(APIRequestStatus.loading);
-      if (idLPA != 0) {
-        itemList = await apiClient.getDataPA(pageSize: pageSize, pageIndex: pageIndex, LoaiPhanAnhId: idLPA);
-      }else{
-        itemList = await apiClient.getDataPA(pageSize: pageSize, pageIndex: pageIndex);
+      filter = value;
+      setLoadPA(true);
+      if (value.phananh?.loaiPhanAnhId != 0) {
+        _itemList = await apiClient.getDataPA(
+            pageSize: pageSize, pageIndex: pageIndex, LoaiPhanAnhId: value.phananh?.loaiPhanAnhId);
+        _itemListLVP = await apiClient.getDataLVP(loaiPhanAnhId: value.phananh!.loaiPhanAnhId!);
+        filter?.loaiViPhamIds = _itemListLVP;
+        filter?.phananh = value.phananh;
+        filter?.phuongXa =value.phuongXa;
+        filter?.duong = value.duong;
+        filter?.tuNgay = value.tuNgay;
+        filter?.denNgay = value.denNgay;
+      } else {
+        _itemList =
+            await apiClient.getDataPA(pageSize: pageSize, pageIndex: pageIndex);
+        filter?.phuongXa =value.phuongXa;
+        filter?.duong = value.duong;
+        filter?.tuNgay = value.tuNgay;
+        filter?.denNgay = value.denNgay;
       }
-      setApiRequestStatus(APIRequestStatus.loaded);
+      setLoadPA(false);
       listener();
       notifyListeners();
     } catch (e) {
@@ -128,8 +147,13 @@ class PhanAnhProvider extends ChangeNotifier {
     }
   }
 
-  void setApiRequestStatus(APIRequestStatus value) {
-    _apiRequestStatus = value;
+  void setLoadLPA(bool value) {
+    loadLPA = value;
+    notifyListeners();
+  }
+
+  void setLoadPA(bool value) {
+    loadPA = value;
     notifyListeners();
   }
 }

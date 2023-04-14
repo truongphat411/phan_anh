@@ -27,7 +27,7 @@ class BodyBuilder extends StatelessWidget {
       case APIRequestStatus.error:
         return const LoadingWidget();
       case APIRequestStatus.loaded:
-        return Container(color: ColorSelect.backGroundColor, child: child);
+        return child;
       default:
         return const LoadingWidget();
     }

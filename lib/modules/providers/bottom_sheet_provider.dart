@@ -15,6 +15,11 @@ class BottomSheetProvider extends ChangeNotifier {
   DateTime? _fromDate;
   DateTime? _toDate;
 
+  bool isLoadingLPA = false;
+  bool isLoadingLVP = false;
+  bool isLoadingPX = false;
+  bool isLoadingD = false;
+
   List<LoaiPhanAnh> get loaiPAList => _loaiPAList;
   List<LoaiViPham> get loaiVPList => _loaiVPList;
   List<PhuongXa> get pxList => _pxList;
@@ -25,6 +30,26 @@ class BottomSheetProvider extends ChangeNotifier {
   String? get duongId => _duongId;
   DateTime? get fromDate => _fromDate;
   DateTime? get toDate => _toDate;
+
+  void setLoadingLPA(bool value) {
+    isLoadingLPA = value;
+    notifyListeners();
+  }
+
+  void setLoadingLVP(bool value) {
+    isLoadingLVP = value;
+    notifyListeners();
+  }
+
+  void setLoadingPX(bool value) {
+    isLoadingPX = value;
+    notifyListeners();
+  }
+
+  void setLoadingD(bool value) {
+    isLoadingD = value;
+    notifyListeners();
+  }
 
   void setTenLoaiPA(String? value) {
     _tenloaiPA = value;
@@ -56,31 +81,39 @@ class BottomSheetProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> getLoaiPAList() async {
+  Future<void> getLPA() async {
+    setLoadingLPA(true);
     final List<LoaiPhanAnh> items = await ApiClient().getDataLPA();
     _loaiPAList = items;
+    setLoadingLPA(false);
     notifyListeners();
   }
 
-  Future<void> getLoaiVPList(int loaiPhanAnhId) async {
+  Future<void> getLVP(int loaiPhanAnhId) async {
+    setLoadingLVP(true);
     final List<LoaiViPham> items =
         await ApiClient().getDataLVP(loaiPhanAnhId: loaiPhanAnhId);
     _loaiVPList = items;
+    setLoadingLVP(false);
     notifyListeners();
   }
 
   Future<void> getPXList() async {
+    setLoadingPX(true);
     final List<PhuongXa> items = await ApiClient().getDataPX();
     _pxList = items;
+    setLoadingPX(false);
     notifyListeners();
   }
 
   Future<void> getDList(int phuongXaId) async {
     _dList = [];
+    setLoadingD(true);
     _duongId = null;
     final List<Duong> items =
         await ApiClient().getDataD(phuongXaId: phuongXaId);
     _dList = items;
+    setLoadingD(false);
     notifyListeners();
   }
 

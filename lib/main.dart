@@ -7,7 +7,8 @@ import 'modules/modules.dart';
 void main() {
   runApp(MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => PhanAnhProvider())
+        ChangeNotifierProvider(create: (_) => PhanAnhProvider()),
+        ChangeNotifierProvider(create: (_) => BottomSheetProvider())
       ],
       child: const MyApp()));
 }
